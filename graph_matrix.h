@@ -85,28 +85,13 @@ bool m_graph_node_is_in_graph(char* node_id, matrix_graph* m_graph) {
 	return false;
 }
 
-size_t m_graph_add_node(char* node_id, matrix_graph* m_graph) {
-	int64_t raw_index = m_graph_get_node_index(node_id, m_graph);
-
-	if(raw_index >= 0) {
-		printf("Node: %s allready in graph\n", node_id);
-		return (size_t) raw_index;
-	}
-
-	m_graph_check_capacity(m_graph);
-	m_graph->node_ids[m_graph->node_count] = (char*) malloc(sizeof(node_id));
-	strcpy(m_graph->node_ids[m_graph->node_count], node_id);
-
-	printf("Added: %s\n\n", m_graph->node_ids[m_graph->node_count]);
-	m_graph->node_count++;
-	return m_graph->node_count - 1;
-}
-
 int64_t m_graph_get_node_index(char* node_id, matrix_graph* m_graph) {
 
 	if(m_graph->node_count == 0) {
 		printf("No nodes in graph\n");
 		return -1;
+
+	}
 
 	int64_t i;
 	bool found = false;
@@ -127,9 +112,29 @@ int64_t m_graph_get_node_index(char* node_id, matrix_graph* m_graph) {
 	
 }
 
-void m_graph_add_link(char* child_id, char* parent_id, matrix_graph* m_graph) {
-	m_graph_add_node(child_id, m_graph);
-	m_graph_add_node(parent_id, m_graph);
+size_t m_graph_add_node(char* node_id, matrix_graph* m_graph) {
+	int64_t raw_index = m_graph_get_node_index(node_id, m_graph);
+
+	if(raw_index >= 0) {
+		printf("Node: %s allready in graph\n", node_id);
+		return (size_t) raw_index;
+	}
+
+	m_graph_check_capacity(m_graph);
+	m_graph->node_ids[m_graph->node_count] = (char*) malloc(sizeof(node_id));
+	strcpy(m_graph->node_ids[m_graph->node_count], node_id);
+
+	printf("Added: %s\n\n", m_graph->node_ids[m_graph->node_count]);
+	m_graph->node_count++;
+	return m_graph->node_count - 1; // is equivalent to the index of the node that has just been added.
 }
 
-void m_graph_free(matrix_graph m_graph);
+
+void m_graph_add_link(char* child_id, char* parent_id, matrix_graph* m_graph) {
+	size_t child_index = m_graph_add_node(child_id, m_graph);
+	size_t parent_index = m_graph_add_node(parent_id, m_graph);
+	
+	m_graph->matrix[child_index][parent_index] = true;
+}
+
+//void m_graph_free(matrix_graph m_graph){};
